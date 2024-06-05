@@ -1,0 +1,63 @@
+# FROM ubuntu
+# WORKDIR /app
+
+# RUN wget -O vscode.deb https://go.microsoft.com/fwlink/?LinkID=760868 | sudo apt install ./vscode.deb
+
+#Install git
+  
+#RUN apt install git
+#Set working directory
+
+#EXPOSE 8080
+
+# # RUN  git clone https://github.com/jagadish12/SampleTest.git
+
+# # RUN ls
+
+# FROM alpine:latest
+
+# #Install git
+# RUN apk add --no-cache git
+
+# #Set working directory
+# WORKDIR /app
+
+# RUN git clone https://github.com/jagadish12/SampleTest.git
+# ENV PYTHONUNBUFFERED=1
+# RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+# RUN pip3 install --no-cache --upgrade pip setuptools 
+# RUN pip install robotframework
+# RUN ls
+
+
+
+
+# Use the official Python image from the Docker Hub
+FROM python:3.9
+
+# Set the working directory in the container
+WORKDIR /workspace
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    sudo \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add a non-root user to avoid running VS Code as root
+RUN useradd -ms /bin/bash devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo
+
+# Switch to the new user
+USER devuser
+WORKDIR /home/devuser
+
+# Set up Python environment (e.g., install pip packages if needed)
+COPY requirements.txt ./
+RUN pip install --user -r requirements.txt
+
+# Expose SSH server port for VS Code Remote SSH extension (if needed)
+EXPOSE 22
+
+# Start SSH server (optional if you use VS Code Remote Containers instead)
+CMD ["/usr/sbin/sshd", "-D"]

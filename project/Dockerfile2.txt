@@ -1,0 +1,37 @@
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND = noninteractive
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    software-properties-common \
+    && rm -rf  /var/lib/apt/lists/*
+
+RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg \
+    && install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ \
+    && sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list' \
+    && apt-get update \
+    && apt-get install -y code \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm packages.microsoft.gpg
+
+WORKDIR /workspace
+
+EXPOSE 8080
+
+CMD ["code", "--user-data-dir", "/workspace/data", "--no-sandbox", "--disable-gpu", "--extensions-dir", "/workspace/extensions", "/workspace"]
+
+# Install VNC server and a simple window manager
+RUN apt-get update && apt-get install -y \
+    xfce4 \
+    xfce4-goodies \
+    tightvncserver \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up VNC server
+RUN mkdir -p ~/.vnc \
+    && echo 'password' | vncpasswd -f > ~/.vnc/passwd \
+    && chmod 600 ~/.vnc/passwd
+
+
+# Start VNC server
+#CMD vncserver :1 -geometry 1280x800 -depth 24 && tail -f /dev/null

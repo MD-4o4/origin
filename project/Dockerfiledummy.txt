@@ -1,0 +1,15 @@
+# Use the official Python image from the Docker Hub
+FROM python:3.9
+
+# Set the working directory in the container
+WORKDIR /workspace
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    sudo \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8080
+

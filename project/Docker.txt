@@ -1,0 +1,42 @@
+# Use the official Python image from the Docker Hub
+FROM python:3.9
+
+# Set the working directory in the container
+WORKDIR /workspace
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    sudo \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add a non-root user to avoid running VS Code as root
+RUN useradd -ms /bin/bash devuser && echo "devuser:devuser" | chpasswd && adduser devuser sudo
+
+RUN sudo apt install -y curl gpg
+
+# RUN curl -sSL "https://packages.microsoft.com/keys/microsoft.asc" 
+
+# RUN sudo apt-key add 
+
+# RUN sudo add-apt-repository "deb [arch=amd64] 'https://packages.microsoft.com/repos/vscode stable main'"
+# RUN sudo apt update
+# RUN sudo apt install code
+RUN apt install git    
+
+# Switch to the new user
+USER devuser
+WORKDIR /home/devuser
+
+# Set up Python environment (e.g., install pip packages if needed)
+# COPY requirements.txt ./
+# RUN pip install --user -r requirements.txt
+
+# Expose SSH server port for VS Code Remote SSH extension (if needed)
+EXPOSE 22
+
+# Start SSH server (optional if you use VS Code Remote Containers instead)
+CMD ["/usr/sbin/sshd", "-D"]
+
+
